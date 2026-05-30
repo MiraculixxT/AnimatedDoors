@@ -1,0 +1,20 @@
+{
+	"variants": {
+		"facing=north,half=bottom,open=false": { "model": "animated_doors:block/oak_trapdoor_bottom" },
+		"facing=south,half=bottom,open=false": { "model": "animated_doors:block/oak_trapdoor_bottom", "y": 180 },
+		"facing=east,half=bottom,open=false": { "model": "animated_doors:block/oak_trapdoor_bottom", "y": 90 },
+		"facing=west,half=bottom,open=false": { "model": "animated_doors:block/oak_trapdoor_bottom", "y": 270 },
+		"facing=north,half=top,open=false": { "model": "animated_doors:block/oak_trapdoor_top" },
+		"facing=south,half=top,open=false": { "model": "animated_doors:block/oak_trapdoor_top", "y": 180 },
+		"facing=east,half=top,open=false": { "model": "animated_doors:block/oak_trapdoor_top", "y": 90 },
+		"facing=west,half=top,open=false": { "model": "animated_doors:block/oak_trapdoor_top", "y": 270 },
+		"facing=north,half=bottom,open=true": { "model": "animated_doors:block/oak_trapdoor_open_up" },
+		"facing=south,half=bottom,open=true": { "model": "animated_doors:block/oak_trapdoor_open_up", "y": 180 },
+		"facing=east,half=bottom,open=true": { "model": "animated_doors:block/oak_trapdoor_open_up", "y": 90 },
+		"facing=west,half=bottom,open=true": { "model": "animated_doors:block/oak_trapdoor_open_up", "y": 270 },
+		"facing=north,half=top,open=true": { "model": "animated_doors:block/oak_trapdoor_open_down" },
+		"facing=south,half=top,open=true": { "model": "animated_doors:block/oak_trapdoor_open_down", "y": 180 },
+		"facing=east,half=top,open=true": { "model": "animated_doors:block/oak_trapdoor_open_down", "y": 90 },
+		"facing=west,half=top,open=true": { "model": "animated_doors:block/oak_trapdoor_open_down", "y": 270 }
+	}
+}

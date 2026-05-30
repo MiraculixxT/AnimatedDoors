@@ -1,0 +1,25 @@
+{
+	"parent": "minecraft:block/block",
+	"credit": "Made by Miraculixx",
+	"ambientocclusion": true,
+	"textures": {
+		"particle": "#texture",
+		"sides": "#texture"
+	},
+	"elements": [
+		{
+			"name": "cube",
+			"from": [0, 13, 0],
+			"to": [16, 16, 16],
+			"rotation": { "angle": 0, "axis": "y", "origin": [0, 13, 0] },
+			"faces": {
+				"down": {"uv": [0, 0, 16, 16], "texture": "#texture"},
+				"up": {"uv": [16, 16, 0, 0], "texture": "#texture", "cullface": "up"},
+				"north": {"uv": [13, 0, 16, 16], "rotation": 90, "texture": "#sides", "cullface": "north"},
+				"east": {"uv": [13, 0, 16, 16], "rotation": 90, "texture": "#sides", "cullface": "east"},
+				"south": {"uv": [16, 16, 13, 0], "rotation": 270, "texture": "#sides", "cullface": "south"},
+				"west": {"uv": [13, 0, 16, 16], "rotation": 90, "texture": "#sides", "cullface": "west"}
+			}
+		}
+	]
+}

@@ -1,0 +1,6 @@
+{
+	"parent": "animated_doors:block/template/trapdoor_bottom",
+	"textures": {
+		"texture": "minecraft:block/birch_trapdoor"
+	}
+}
