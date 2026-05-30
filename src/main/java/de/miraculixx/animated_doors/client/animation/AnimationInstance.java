@@ -8,6 +8,7 @@ import java.util.List;
 
 public final class AnimationInstance {
     static final long DURATION_NANOS = 500_000_000L;
+    static final long REVEAL_LEAD_NANOS = 25_000_000L;
 
     public final AnimatedBlockType type;
     public final BlockPos normalizedPos;
@@ -17,6 +18,7 @@ public final class AnimationInstance {
     public final float fromOpenAmount;
     public final float toOpenAmount;
     public final long startedAtNanos;
+    boolean revealScheduled;
 
     AnimationInstance(
         AnimatedBlockType type,
@@ -46,5 +48,9 @@ public final class AnimationInstance {
 
     public boolean isFinished(long nowNanos) {
         return nowNanos - startedAtNanos >= DURATION_NANOS;
+    }
+
+    boolean shouldRevealOriginal(long nowNanos) {
+        return !revealScheduled && nowNanos - startedAtNanos >= DURATION_NANOS - REVEAL_LEAD_NANOS;
     }
 }

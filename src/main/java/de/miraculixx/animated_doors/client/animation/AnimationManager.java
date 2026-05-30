@@ -11,6 +11,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,6 +61,10 @@ public final class AnimationManager {
         return HIDDEN_POSITIONS.contains(pos.asLong()) && findType(state) != null;
     }
 
+    public static boolean shouldHide(BlockPos pos) {
+        return HIDDEN_POSITIONS.contains(pos.asLong());
+    }
+
     public static AnimationInstance animationAt(BlockPos pos, BlockState state) {
         if (!HIDDEN_POSITIONS.contains(pos.asLong()) || findType(state) == null) {
             return null;
@@ -81,9 +86,8 @@ public final class AnimationManager {
 
     public static void complete(AnimationInstance animation) {
         ACTIVE.remove(animation.normalizedPos.asLong());
-        for (BlockPos pos : animation.affectedPositions) {
-            HIDDEN_POSITIONS.remove(pos.asLong());
-            markDirty(Minecraft.getInstance().level, pos);
+        if (!animation.revealScheduled) {
+            revealOriginal(animation);
         }
     }
 
@@ -92,10 +96,8 @@ public final class AnimationManager {
         for (AnimationInstance animation : activeAnimations()) {
             if (animation.isFinished(now)) {
                 complete(animation);
-            } else {
-                for (BlockPos pos : animation.affectedPositions) {
-                    markDirty(Minecraft.getInstance().level, pos);
-                }
+            } else if (animation.shouldRevealOriginal(now)) {
+                revealOriginal(animation);
             }
         }
     }
@@ -134,10 +136,26 @@ public final class AnimationManager {
         }
     }
 
+    private static void revealOriginal(AnimationInstance animation) {
+        animation.revealScheduled = true;
+        for (BlockPos pos : animation.affectedPositions) {
+            HIDDEN_POSITIONS.remove(pos.asLong());
+            markDirty(Minecraft.getInstance().level, pos);
+        }
+    }
+
     private static void markDirty(BlockGetter level, BlockPos pos) {
         ClientLevel clientLevel = level instanceof ClientLevel ? (ClientLevel) level : Minecraft.getInstance().level;
-        if (clientLevel != null) {
-            clientLevel.setBlocksDirty(pos, clientLevel.getBlockState(pos), clientLevel.getBlockState(pos));
+        Minecraft minecraft = Minecraft.getInstance();
+        if (clientLevel != null && minecraft.levelRenderer != null) {
+            BlockState state = clientLevel.getBlockState(pos);
+            if (state.hasProperty(BlockStateProperties.OPEN)) {
+                BlockState flipped = state.cycle(BlockStateProperties.OPEN);
+                minecraft.levelRenderer.blockChanged(clientLevel, pos, state, flipped, 3);
+                minecraft.levelRenderer.blockChanged(clientLevel, pos, flipped, state, 3);
+            } else {
+                minecraft.levelRenderer.blockChanged(clientLevel, pos, state, state, 3);
+            }
         }
     }
 }
