@@ -2,13 +2,16 @@ package de.miraculixx.animated_doors.mixin;
 
 import de.miraculixx.animated_doors.client.AnimationManager;
 import de.miraculixx.animated_doors.client.AnimationInstance;
+import de.miraculixx.animated_doors.client.GeneratedFace;
 import de.miraculixx.animated_doors.client.RenderInstruction;
 import de.miraculixx.animated_doors.client.TransformingBlockQuadOutput;
+import com.mojang.blaze3d.vertex.QuadInstance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockQuadOutput;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -63,6 +66,15 @@ public abstract class ModelBlockRendererMixin {
                     animatedModel,
                     instruction.state().getSeed(pos)
                 );
+                if (!instruction.generatedFaces().isEmpty()) {
+                    BakedQuad template = GeneratedFace.findTemplate(animatedModel, instruction.state(), pos);
+                    if (template != null) {
+                        TransformingBlockQuadOutput generatedOutput = new TransformingBlockQuadOutput(output, instruction.transform(), quad -> true);
+                        for (GeneratedFace face : instruction.generatedFaces()) {
+                            generatedOutput.put(x, y, z, face.bake(template), new QuadInstance());
+                        }
+                    }
+                }
             }
         } finally {
             animated_doors$renderingAnimation.set(false);

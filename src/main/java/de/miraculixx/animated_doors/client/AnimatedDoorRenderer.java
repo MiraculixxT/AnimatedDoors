@@ -45,7 +45,7 @@ public final class AnimatedDoorRenderer {
         for (AnimationInstance animation : AnimationManager.activeAnimations()) {
             for (BlockPos pos : animation.affectedPositions) {
                 for (RenderInstruction instruction : animation.type.renderInstructions(animation, pos)) {
-                    renderContext.submit(pos, instruction.state(), instruction.transform(), instruction.filter());
+                    renderContext.submit(pos, instruction.state(), instruction.transform(), instruction.filter(), instruction.generatedFaces());
                 }
             }
         }
@@ -64,7 +64,7 @@ public final class AnimatedDoorRenderer {
             this.cameraPos = cameraPos;
         }
 
-        private void submit(BlockPos pos, BlockState state, org.joml.Matrix4fc transform, Predicate<BakedQuad> quadFilter) {
+        private void submit(BlockPos pos, BlockState state, org.joml.Matrix4fc transform, Predicate<BakedQuad> quadFilter, List<GeneratedFace> generatedFaces) {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.level == null) {
                 return;
@@ -79,6 +79,12 @@ public final class AnimatedDoorRenderer {
             for (BlockStateModelPart part : parts) {
                 filtered.add(new FilteringPart(part, quadFilter));
             }
+            if (!generatedFaces.isEmpty()) {
+                BakedQuad template = GeneratedFace.findTemplate(parts);
+                if (template != null) {
+                    filtered.add(new GeneratedPart(generatedFaces, template, model.particleMaterial()));
+                }
+            }
             parts.clear();
             parts.addAll(filtered);
 
@@ -90,6 +96,44 @@ public final class AnimatedDoorRenderer {
             );
             renderState.submit(poseStack, submitNodeCollector, LevelRenderer.getLightCoords(minecraft.level, pos), OverlayTexture.NO_OVERLAY, 0);
             poseStack.popPose();
+        }
+    }
+
+    private static final class GeneratedPart implements BlockStateModelPart {
+        private final List<GeneratedFace> faces;
+        private final BakedQuad template;
+        private final net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial;
+
+        private GeneratedPart(List<GeneratedFace> faces, BakedQuad template, net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial) {
+            this.faces = faces;
+            this.template = template;
+            this.particleMaterial = particleMaterial;
+        }
+
+        @Override
+        public List<BakedQuad> getQuads(Direction direction) {
+            List<BakedQuad> quads = new ArrayList<>(faces.size());
+            for (GeneratedFace face : faces) {
+                if (direction == null || face.direction() == direction) {
+                    quads.add(face.bake(template));
+                }
+            }
+            return quads;
+        }
+
+        @Override
+        public boolean useAmbientOcclusion() {
+            return false;
+        }
+
+        @Override
+        public net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial() {
+            return particleMaterial;
+        }
+
+        @Override
+        public int materialFlags() {
+            return template.materialInfo().flags();
         }
     }
 
