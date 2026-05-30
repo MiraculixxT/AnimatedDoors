@@ -1,4 +1,4 @@
-package de.miraculixx.animated_doors.client;
+package de.miraculixx.animated_doors.client.animation;
 
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.world.level.block.state.BlockState;

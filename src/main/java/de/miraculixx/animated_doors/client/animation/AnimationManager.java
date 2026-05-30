@@ -1,5 +1,9 @@
-package de.miraculixx.animated_doors.client;
+package de.miraculixx.animated_doors.client.animation;
 
+import de.miraculixx.animated_doors.client.animation.type.AnimatedBlockType;
+import de.miraculixx.animated_doors.client.animation.type.DoorAnimationType;
+import de.miraculixx.animated_doors.client.animation.type.FenceGateAnimationType;
+import de.miraculixx.animated_doors.client.animation.type.TrapdoorAnimationType;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.Minecraft;

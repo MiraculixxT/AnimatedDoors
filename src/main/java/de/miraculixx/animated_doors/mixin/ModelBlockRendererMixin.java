@@ -1,10 +1,10 @@
 package de.miraculixx.animated_doors.mixin;
 
-import de.miraculixx.animated_doors.client.AnimationManager;
-import de.miraculixx.animated_doors.client.AnimationInstance;
-import de.miraculixx.animated_doors.client.GeneratedFace;
-import de.miraculixx.animated_doors.client.RenderInstruction;
-import de.miraculixx.animated_doors.client.TransformingBlockQuadOutput;
+import de.miraculixx.animated_doors.client.animation.AnimationManager;
+import de.miraculixx.animated_doors.client.animation.AnimationInstance;
+import de.miraculixx.animated_doors.client.animation.GeneratedFace;
+import de.miraculixx.animated_doors.client.animation.RenderInstruction;
+import de.miraculixx.animated_doors.client.animation.TransformingBlockQuadOutput;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;

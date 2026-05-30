@@ -1,4 +1,4 @@
-package de.miraculixx.animated_doors.client;
+package de.miraculixx.animated_doors.client.animation;
 
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;

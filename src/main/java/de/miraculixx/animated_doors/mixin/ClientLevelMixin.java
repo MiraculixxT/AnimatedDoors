@@ -1,6 +1,6 @@
 package de.miraculixx.animated_doors.mixin;
 
-import de.miraculixx.animated_doors.client.AnimationManager;
+import de.miraculixx.animated_doors.client.animation.AnimationManager;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;

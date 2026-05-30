@@ -1,7 +1,7 @@
 package de.miraculixx.animated_doors
 
 import com.mojang.logging.LogUtils
-import de.miraculixx.animated_doors.client.AnimatedDoorRenderer
+import de.miraculixx.animated_doors.client.animation.AnimatedDoorRenderer
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer

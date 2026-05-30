@@ -1,4 +1,4 @@
-package de.miraculixx.animated_doors.client;
+package de.miraculixx.animated_doors.client.animation;
 
 import com.mojang.blaze3d.vertex.QuadInstance;
 import net.minecraft.client.renderer.block.BlockQuadOutput;

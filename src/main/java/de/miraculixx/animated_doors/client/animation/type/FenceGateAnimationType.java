@@ -1,5 +1,6 @@
-package de.miraculixx.animated_doors.client;
+package de.miraculixx.animated_doors.client.animation.type;
 
+import de.miraculixx.animated_doors.client.animation.*;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +15,7 @@ import org.joml.Vector3fc;
 import java.util.ArrayList;
 import java.util.List;
 
-final class FenceGateAnimationType implements AnimatedBlockType {
+public final class FenceGateAnimationType implements AnimatedBlockType {
     private static final float EDGE_CENTER = 1.0f / 16.0f;
     private static final float FAR_EDGE_CENTER = 15.0f / 16.0f;
     private static final float CENTER = 0.5f;

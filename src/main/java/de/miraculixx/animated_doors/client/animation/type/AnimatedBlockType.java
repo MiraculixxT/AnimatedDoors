@@ -1,5 +1,7 @@
-package de.miraculixx.animated_doors.client;
+package de.miraculixx.animated_doors.client.animation.type;
 
+import de.miraculixx.animated_doors.client.animation.AnimationInstance;
+import de.miraculixx.animated_doors.client.animation.RenderInstruction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;

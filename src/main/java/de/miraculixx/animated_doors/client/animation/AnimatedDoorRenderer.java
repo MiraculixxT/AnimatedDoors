@@ -1,6 +1,7 @@
-package de.miraculixx.animated_doors.client;
+package de.miraculixx.animated_doors.client.animation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -11,10 +12,12 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4fc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +32,7 @@ public final class AnimatedDoorRenderer {
         LevelRenderEvents.COLLECT_SUBMITS.register(AnimatedDoorRenderer::renderImmediate);
     }
 
-    private static void renderImmediate(net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext context) {
+    private static void renderImmediate(LevelRenderContext context) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             return;
@@ -64,7 +67,7 @@ public final class AnimatedDoorRenderer {
             this.cameraPos = cameraPos;
         }
 
-        private void submit(BlockPos pos, BlockState state, org.joml.Matrix4fc transform, Predicate<BakedQuad> quadFilter, List<GeneratedFace> generatedFaces) {
+        private void submit(BlockPos pos, BlockState state, Matrix4fc transform, Predicate<BakedQuad> quadFilter, List<GeneratedFace> generatedFaces) {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.level == null) {
                 return;
@@ -102,9 +105,9 @@ public final class AnimatedDoorRenderer {
     private static final class GeneratedPart implements BlockStateModelPart {
         private final List<GeneratedFace> faces;
         private final BakedQuad template;
-        private final net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial;
+        private final Material.Baked particleMaterial;
 
-        private GeneratedPart(List<GeneratedFace> faces, BakedQuad template, net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial) {
+        private GeneratedPart(List<GeneratedFace> faces, BakedQuad template, Material.Baked particleMaterial) {
             this.faces = faces;
             this.template = template;
             this.particleMaterial = particleMaterial;
@@ -127,7 +130,7 @@ public final class AnimatedDoorRenderer {
         }
 
         @Override
-        public net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial() {
+        public Material.Baked particleMaterial() {
             return particleMaterial;
         }
 
@@ -168,7 +171,7 @@ public final class AnimatedDoorRenderer {
         }
 
         @Override
-        public net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial() {
+        public Material.Baked particleMaterial() {
             return delegate.particleMaterial();
         }
 

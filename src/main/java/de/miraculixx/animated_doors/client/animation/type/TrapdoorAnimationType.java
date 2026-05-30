@@ -1,5 +1,8 @@
-package de.miraculixx.animated_doors.client;
+package de.miraculixx.animated_doors.client.animation.type;
 
+import de.miraculixx.animated_doors.client.animation.AnimationInstance;
+import de.miraculixx.animated_doors.client.animation.AnimationMath;
+import de.miraculixx.animated_doors.client.animation.RenderInstruction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -10,7 +13,7 @@ import org.joml.Matrix4f;
 
 import java.util.List;
 
-final class TrapdoorAnimationType implements AnimatedBlockType {
+public final class TrapdoorAnimationType implements AnimatedBlockType {
     private static final float HALF_THICKNESS = 1.5f / 16.0f;
     private static final float FAR_EDGE_CENTER = 1.0f - HALF_THICKNESS;
 
