@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "${modid}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "${description}",
+  "authors": [ "${author}" ],
+  "contact": {},
+  "license": "${license}",
+  "icon": "assets/animated_doors/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "de.miraculixx.animated_doors.AnimatedDoors"
+    ]
+  },
+  "mixins": [
+    "animated_doors.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loaderVersion}",
+    "minecraft": "${mcversion}",
+    "fabric-language-kotlin": "*",
+    "fabric-api": "*"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "de.miraculixx.animated_doors.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "ClientLevelMixin",
+    "ModelBlockRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
