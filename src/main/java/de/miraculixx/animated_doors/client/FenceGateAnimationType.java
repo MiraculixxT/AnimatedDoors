@@ -13,6 +13,12 @@ import org.joml.Vector3fc;
 import java.util.List;
 
 final class FenceGateAnimationType implements AnimatedBlockType {
+    private static final float EDGE_CENTER = 1.0f / 16.0f;
+    private static final float FAR_EDGE_CENTER = 15.0f / 16.0f;
+    private static final float CENTER = 0.5f;
+    private static final float HALF_THICKNESS = 1.0f / 16.0f;
+    private static final float EPSILON = 0.0001f;
+
     @Override
     public boolean supports(BlockState state) {
         return state.getBlock() instanceof FenceGateBlock && state.hasProperty(FenceGateBlock.OPEN);
@@ -41,7 +47,7 @@ final class FenceGateAnimationType implements AnimatedBlockType {
 
     @Override
     public List<RenderInstruction> renderInstructions(AnimationInstance animation, BlockPos pos) {
-        BlockState baseState = animation.oldState.setValue(FenceGateBlock.OPEN, false);
+        BlockState baseState = animation.newState.setValue(FenceGateBlock.OPEN, false);
         Direction facing = baseState.getValue(HorizontalDirectionalBlock.FACING);
         float amount = animation.openAmount(System.nanoTime());
         float angle = amount * ((float) Math.PI / 2.0f);
@@ -50,30 +56,34 @@ final class FenceGateAnimationType implements AnimatedBlockType {
         instructions.add(new RenderInstruction(baseState, new Matrix4f(), quad -> isPost(quad, facing)));
 
         if (facing.getAxis() == Direction.Axis.Z) {
-            float sign = facing == Direction.SOUTH ? 1.0f : -1.0f;
-            instructions.add(new RenderInstruction(baseState, AnimationMath.rotateY(0.125f, 0.5f, angle * sign), quad -> isLeftLeaf(quad, facing)));
-            instructions.add(new RenderInstruction(baseState, AnimationMath.rotateY(0.875f, 0.5f, -angle * sign), quad -> isRightLeaf(quad, facing)));
+            float sign = facing == Direction.SOUTH ? -1.0f : 1.0f;
+            instructions.add(new RenderInstruction(baseState, AnimationMath.rotateY(EDGE_CENTER, CENTER, angle * sign), quad -> isLowLeaf(quad, facing)));
+            instructions.add(new RenderInstruction(baseState, AnimationMath.rotateY(FAR_EDGE_CENTER, CENTER, -angle * sign), quad -> isHighLeaf(quad, facing)));
         } else {
             float sign = facing == Direction.WEST ? 1.0f : -1.0f;
-            instructions.add(new RenderInstruction(baseState, AnimationMath.rotateY(0.5f, 0.125f, -angle * sign), quad -> isLeftLeaf(quad, facing)));
-            instructions.add(new RenderInstruction(baseState, AnimationMath.rotateY(0.5f, 0.875f, angle * sign), quad -> isRightLeaf(quad, facing)));
+            instructions.add(new RenderInstruction(baseState, AnimationMath.rotateY(CENTER, EDGE_CENTER, -angle * sign), quad -> isLowLeaf(quad, facing)));
+            instructions.add(new RenderInstruction(baseState, AnimationMath.rotateY(CENTER, FAR_EDGE_CENTER, angle * sign), quad -> isHighLeaf(quad, facing)));
         }
         return instructions;
     }
 
     private boolean isPost(BakedQuad quad, Direction facing) {
         float width = averageWidth(quad, facing);
-        return width < 0.125f || width > 0.875f;
+        return isEdge(width) && isCenteredDepth(quad, facing);
     }
 
-    private boolean isLeftLeaf(BakedQuad quad, Direction facing) {
+    private boolean isLowLeaf(BakedQuad quad, Direction facing) {
         float width = averageWidth(quad, facing);
-        return width >= 0.125f && width < 0.5f;
+        return width < CENTER && !isPost(quad, facing);
     }
 
-    private boolean isRightLeaf(BakedQuad quad, Direction facing) {
+    private boolean isHighLeaf(BakedQuad quad, Direction facing) {
         float width = averageWidth(quad, facing);
-        return width > 0.5f && width <= 0.875f;
+        return width > CENTER && !isPost(quad, facing);
+    }
+
+    private boolean isEdge(float width) {
+        return width < 0.25f || width > 0.75f;
     }
 
     private float averageWidth(BakedQuad quad, Direction facing) {
@@ -83,5 +93,17 @@ final class FenceGateAnimationType implements AnimatedBlockType {
             total += facing.getAxis() == Direction.Axis.Z ? position.x() : position.z();
         }
         return total / BakedQuad.VERTEX_COUNT;
+    }
+
+    private boolean isCenteredDepth(BakedQuad quad, Direction facing) {
+        float min = Float.POSITIVE_INFINITY;
+        float max = Float.NEGATIVE_INFINITY;
+        for (int i = 0; i < BakedQuad.VERTEX_COUNT; i++) {
+            Vector3fc position = quad.position(i);
+            float depth = facing.getAxis() == Direction.Axis.Z ? position.z() : position.x();
+            min = Math.min(min, depth);
+            max = Math.max(max, depth);
+        }
+        return min >= CENTER - HALF_THICKNESS - EPSILON && max <= CENTER + HALF_THICKNESS + EPSILON;
     }
 }
