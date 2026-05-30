@@ -56,8 +56,8 @@ final class TrapdoorAnimationType implements AnimatedBlockType {
         return switch (facing) {
             case NORTH -> AnimationMath.rotateX(HALF_THICKNESS, FAR_EDGE_CENTER, angle);
             case SOUTH -> AnimationMath.rotateX(HALF_THICKNESS, HALF_THICKNESS, -angle);
-            case EAST -> AnimationMath.rotateZ(FAR_EDGE_CENTER, HALF_THICKNESS, -angle);
-            case WEST -> AnimationMath.rotateZ(HALF_THICKNESS, HALF_THICKNESS, angle);
+            case WEST -> AnimationMath.rotateZ(FAR_EDGE_CENTER, HALF_THICKNESS, -angle);
+            case EAST -> AnimationMath.rotateZ(HALF_THICKNESS, HALF_THICKNESS, angle);
             default -> new Matrix4f();
         };
     }
@@ -66,8 +66,8 @@ final class TrapdoorAnimationType implements AnimatedBlockType {
         return switch (facing) {
             case NORTH -> AnimationMath.rotateX(FAR_EDGE_CENTER, FAR_EDGE_CENTER, -angle);
             case SOUTH -> AnimationMath.rotateX(FAR_EDGE_CENTER, HALF_THICKNESS, angle);
-            case EAST -> AnimationMath.rotateZ(FAR_EDGE_CENTER, FAR_EDGE_CENTER, angle);
-            case WEST -> AnimationMath.rotateZ(HALF_THICKNESS, FAR_EDGE_CENTER, -angle);
+            case WEST -> AnimationMath.rotateZ(FAR_EDGE_CENTER, FAR_EDGE_CENTER, angle);
+            case EAST -> AnimationMath.rotateZ(HALF_THICKNESS, FAR_EDGE_CENTER, -angle);
             default -> new Matrix4f();
         };
     }
