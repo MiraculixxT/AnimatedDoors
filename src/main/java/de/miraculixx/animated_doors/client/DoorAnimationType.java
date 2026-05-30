@@ -12,6 +12,9 @@ import org.joml.Matrix4f;
 import java.util.List;
 
 final class DoorAnimationType implements AnimatedBlockType {
+    private static final float HALF_THICKNESS = 1.5f / 16.0f;
+    private static final float FAR_EDGE_CENTER = 1.0f - HALF_THICKNESS;
+
     @Override
     public boolean supports(BlockState state) {
         return state.getBlock() instanceof DoorBlock && state.hasProperty(DoorBlock.OPEN);
@@ -61,20 +64,20 @@ final class DoorAnimationType implements AnimatedBlockType {
 
     private float hingeX(Direction facing, DoorHingeSide hinge) {
         return switch (facing) {
-            case EAST -> 0.0f;
-            case WEST -> 1.0f;
-            case NORTH -> hinge == DoorHingeSide.LEFT ? 0.0f : 1.0f;
-            case SOUTH -> hinge == DoorHingeSide.LEFT ? 1.0f : 0.0f;
+            case EAST -> HALF_THICKNESS;
+            case WEST -> FAR_EDGE_CENTER;
+            case NORTH -> hinge == DoorHingeSide.LEFT ? HALF_THICKNESS : FAR_EDGE_CENTER;
+            case SOUTH -> hinge == DoorHingeSide.LEFT ? FAR_EDGE_CENTER : HALF_THICKNESS;
             default -> 0.0f;
         };
     }
 
     private float hingeZ(Direction facing, DoorHingeSide hinge) {
         return switch (facing) {
-            case NORTH -> 1.0f;
-            case SOUTH -> 0.0f;
-            case EAST -> hinge == DoorHingeSide.LEFT ? 0.0f : 1.0f;
-            case WEST -> hinge == DoorHingeSide.LEFT ? 1.0f : 0.0f;
+            case NORTH -> FAR_EDGE_CENTER;
+            case SOUTH -> HALF_THICKNESS;
+            case EAST -> hinge == DoorHingeSide.LEFT ? HALF_THICKNESS : FAR_EDGE_CENTER;
+            case WEST -> hinge == DoorHingeSide.LEFT ? FAR_EDGE_CENTER : HALF_THICKNESS;
             default -> 0.0f;
         };
     }
