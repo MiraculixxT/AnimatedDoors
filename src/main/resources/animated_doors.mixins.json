@@ -5,6 +5,7 @@
   "plugin": "de.miraculixx.animated_doors.mixin.AnimatedDoorsMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "accessor.TrapDoorBlockAccessor",
     "ClientLevelMixin",
     "ModelBlockRendererMixin",
     "RenderSectionRegionMixin",

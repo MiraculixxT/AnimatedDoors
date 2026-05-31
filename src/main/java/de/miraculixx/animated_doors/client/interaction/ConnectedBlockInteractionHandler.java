@@ -1,6 +1,7 @@
 package de.miraculixx.animated_doors.client.interaction;
 
 import de.miraculixx.animated_doors.client.config.AnimatedDoorsConfig;
+import de.miraculixx.animated_doors.mixin.accessor.TrapDoorBlockAccessor;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -53,6 +54,10 @@ public final class ConnectedBlockInteractionHandler {
 
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = level.getBlockState(pos);
+        if (!canOpenByHand(state)) {
+            return InteractionResult.PASS;
+        }
+
         List<BlockPos> connected = connectedPositions(level, pos, state);
         if (connected.isEmpty()) {
             return InteractionResult.PASS;
@@ -64,6 +69,7 @@ public final class ConnectedBlockInteractionHandler {
             for (BlockPos connectedPos : connected) {
                 BlockState connectedState = level.getBlockState(connectedPos);
                 if (connectedState.hasProperty(BlockStateProperties.OPEN)
+                    && canOpenByHand(connectedState)
                     && connectedState.getValue(BlockStateProperties.OPEN) != targetOpen) {
                     gameMode.useItemOn(localPlayer, hand, syntheticHit(hitResult, connectedPos));
                 }
@@ -159,9 +165,11 @@ public final class ConnectedBlockInteractionHandler {
         }
 
         Direction facing = state.getValue(FenceGateBlock.FACING);
-        List<BlockPos> connected = new ArrayList<>(2);
+        List<BlockPos> connected = new ArrayList<>(4);
         addFenceGateIfConnected(level, pos.relative(facing.getClockWise()), state, connected);
         addFenceGateIfConnected(level, pos.relative(facing.getCounterClockWise()), state, connected);
+        addFenceGateIfConnected(level, pos.above(), state, connected);
+        addFenceGateIfConnected(level, pos.below(), state, connected);
         return connected;
     }
 
@@ -180,6 +188,16 @@ public final class ConnectedBlockInteractionHandler {
 
     private static BlockHitResult syntheticHit(BlockHitResult sourceHit, BlockPos pos) {
         return new BlockHitResult(Vec3.atCenterOf(pos), sourceHit.getDirection(), pos, false);
+    }
+
+    private static boolean canOpenByHand(BlockState state) {
+        if (state.getBlock() instanceof DoorBlock door) {
+            return door.type().canOpenByHand();
+        }
+        if (state.getBlock() instanceof TrapDoorBlock trapdoor) {
+            return ((TrapDoorBlockAccessor) trapdoor).animatedDoors$getType().canOpenByHand();
+        }
+        return isFenceGate(state);
     }
 
     private static boolean isDoor(BlockState state) {
