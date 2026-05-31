@@ -101,9 +101,17 @@ public final class AnimationManager {
     }
 
     public static void tick() {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) {
+            clear();
+            return;
+        }
+
         long now = System.nanoTime();
         for (AnimationInstance animation : activeAnimations()) {
-            if (animation.isFinished(now)) {
+            if (!isStillPresent(level, animation)) {
+                cancel(animation, level);
+            } else if (animation.isFinished(now)) {
                 complete(animation);
             } else if (animation.shouldRevealOriginal(now)) {
                 revealOriginal(animation);
@@ -145,17 +153,24 @@ public final class AnimationManager {
 
     private static void cancelIfReplaced(BlockGetter level, BlockPos pos, BlockState oldState, BlockState newState) {
         AnimatedBlockType oldType = findType(oldState);
-        if (oldType == null || oldState.getBlock() == newState.getBlock()) {
+        if (oldType == null) {
+            AnimationInstance removed = removeAnimationAt(pos);
+            if (removed != null) {
+                revealOriginal(removed);
+            }
+            return;
+        }
+        if (oldState.getBlock() == newState.getBlock()) {
             return;
         }
 
         BlockPos normalized = oldType.normalize(level, pos, oldState);
         AnimationInstance removed = ACTIVE.remove(normalized.asLong());
+        if (removed == null) {
+            removed = removeAnimationAt(pos);
+        }
         if (removed != null) {
-            for (BlockPos affectedPos : removed.affectedPositions) {
-                HIDDEN_POSITIONS.remove(affectedPos.asLong());
-                markDirty(level, affectedPos);
-            }
+            revealOriginal(removed);
         }
     }
 
@@ -173,6 +188,46 @@ public final class AnimationManager {
             HIDDEN_POSITIONS.remove(pos.asLong());
             markDirty(Minecraft.getInstance().level, pos);
         }
+    }
+
+    private static boolean isStillPresent(ClientLevel level, AnimationInstance animation) {
+        for (BlockPos pos : animation.affectedPositions) {
+            BlockState state = level.getBlockState(pos);
+            if (!animation.type.supports(state) || state.getBlock() != animation.newState.getBlock()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void cancel(AnimationInstance animation, BlockGetter level) {
+        ACTIVE.remove(animation.normalizedPos.asLong());
+        for (BlockPos pos : animation.affectedPositions) {
+            HIDDEN_POSITIONS.remove(pos.asLong());
+            markDirty(level, pos);
+        }
+    }
+
+    private static AnimationInstance removeAnimationAt(BlockPos pos) {
+        AnimationInstance direct = ACTIVE.remove(pos.asLong());
+        if (direct != null) {
+            return direct;
+        }
+
+        for (AnimationInstance animation : activeAnimations()) {
+            for (BlockPos affectedPos : animation.affectedPositions) {
+                if (affectedPos.equals(pos)) {
+                    ACTIVE.remove(animation.normalizedPos.asLong());
+                    return animation;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static void clear() {
+        ACTIVE.clear();
+        HIDDEN_POSITIONS.clear();
     }
 
     private static void markDirty(BlockGetter level, BlockPos pos) {
