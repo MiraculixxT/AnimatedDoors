@@ -1,13 +1,13 @@
 package de.miraculixx.animated_doors.client.animation;
 
 import de.miraculixx.animated_doors.client.animation.type.AnimatedBlockType;
+import de.miraculixx.animated_doors.client.config.AnimatedDoorsConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
 public final class AnimationInstance {
-    static final long DURATION_NANOS = 500_000_000L;
     static final long REVEAL_LEAD_NANOS = 25_000_000L;
 
     public final AnimatedBlockType type;
@@ -18,6 +18,9 @@ public final class AnimationInstance {
     public final float fromOpenAmount;
     public final float toOpenAmount;
     public final long startedAtNanos;
+    private final long durationNanos;
+    private final long revealLeadNanos;
+    private final AnimatedDoorsConfig.Easing easing;
     boolean revealScheduled;
 
     AnimationInstance(
@@ -38,19 +41,22 @@ public final class AnimationInstance {
         this.fromOpenAmount = fromOpenAmount;
         this.toOpenAmount = toOpenAmount;
         this.startedAtNanos = startedAtNanos;
+        this.durationNanos = AnimatedDoorsConfig.instance().durationNanos();
+        this.revealLeadNanos = Math.max(0L, Math.min(REVEAL_LEAD_NANOS, durationNanos - 1L));
+        this.easing = AnimatedDoorsConfig.instance().easing();
     }
 
     public float openAmount(long nowNanos) {
-        float raw = (nowNanos - startedAtNanos) / (float) DURATION_NANOS;
-        float eased = AnimationMath.smooth(raw);
+        float raw = (nowNanos - startedAtNanos) / (float) durationNanos;
+        float eased = easing.apply(raw);
         return fromOpenAmount + (toOpenAmount - fromOpenAmount) * eased;
     }
 
     public boolean isFinished(long nowNanos) {
-        return nowNanos - startedAtNanos >= DURATION_NANOS;
+        return nowNanos - startedAtNanos >= durationNanos;
     }
 
     boolean shouldRevealOriginal(long nowNanos) {
-        return !revealScheduled && nowNanos - startedAtNanos >= DURATION_NANOS - REVEAL_LEAD_NANOS;
+        return !revealScheduled && nowNanos - startedAtNanos >= durationNanos - revealLeadNanos;
     }
 }

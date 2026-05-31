@@ -10,6 +10,10 @@ version = properties["version"] as String
 
 repositories {
     mavenCentral()
+    maven {
+        name = "TerraformersMC"
+        url = uri("https://maven.terraformersmc.com/releases")
+    }
 }
 
 dependencies {
@@ -24,6 +28,8 @@ dependencies {
     println("FabricLoader: ${outlet.loaderVersion()}\nFabricAPI: ${outlet.fapiVersion()}")
     implementation("net.fabricmc:fabric-loader:${outlet.loaderVersion()}")
     implementation("net.fabricmc.fabric-api:fabric-api:${outlet.fapiVersion()}")
+    compileOnly("com.terraformersmc:modmenu:18.0.0-beta.1")
+    runtimeOnly("com.terraformersmc:modmenu:18.0.0-beta.1")
 
     //
     // Kotlin libraries

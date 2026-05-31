@@ -2,6 +2,7 @@ package de.miraculixx.animated_doors
 
 import com.mojang.logging.LogUtils
 import de.miraculixx.animated_doors.client.animation.AnimatedDoorRenderer
+import de.miraculixx.animated_doors.client.config.AnimatedDoorsConfig
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
@@ -18,6 +19,7 @@ class AnimatedDoors : ClientModInitializer {
     override fun onInitializeClient() {
         val fabricLoader = FabricLoader.getInstance()
         INSTANCE = fabricLoader.getModContainer(MOD_ID).get()
+        AnimatedDoorsConfig.instance().load()
         LOGGER.info("AnimatedDoors Version: ${INSTANCE.metadata.version} (fabric)")
         AnimatedDoorRenderer.init()
     }

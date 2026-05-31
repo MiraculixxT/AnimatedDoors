@@ -4,6 +4,7 @@ import de.miraculixx.animated_doors.client.animation.type.AnimatedBlockType;
 import de.miraculixx.animated_doors.client.animation.type.DoorAnimationType;
 import de.miraculixx.animated_doors.client.animation.type.FenceGateAnimationType;
 import de.miraculixx.animated_doors.client.animation.type.TrapdoorAnimationType;
+import de.miraculixx.animated_doors.client.config.AnimatedDoorsConfig;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import net.minecraft.client.Minecraft;
@@ -36,7 +37,15 @@ public final class AnimationManager {
         }
 
         AnimatedBlockType type = findType(oldState, newState);
-        if (type == null || !type.hasOpenChanged(oldState, newState)) {
+        if (type == null) {
+            cancelIfReplaced(level, pos, oldState, newState);
+            return;
+        }
+        if (!isEnabled(type)) {
+            cancelActive(level, pos, newState, type);
+            return;
+        }
+        if (!type.hasOpenChanged(oldState, newState)) {
             cancelIfReplaced(level, pos, oldState, newState);
             return;
         }
@@ -120,6 +129,20 @@ public final class AnimationManager {
         return null;
     }
 
+    private static boolean isEnabled(AnimatedBlockType type) {
+        AnimatedDoorsConfig config = AnimatedDoorsConfig.instance();
+        if (type instanceof DoorAnimationType) {
+            return config.doorsEnabled();
+        }
+        if (type instanceof TrapdoorAnimationType) {
+            return config.trapdoorsEnabled();
+        }
+        if (type instanceof FenceGateAnimationType) {
+            return config.fenceGatesEnabled();
+        }
+        return true;
+    }
+
     private static void cancelIfReplaced(BlockGetter level, BlockPos pos, BlockState oldState, BlockState newState) {
         AnimatedBlockType oldType = findType(oldState);
         if (oldType == null || oldState.getBlock() == newState.getBlock()) {
@@ -133,6 +156,14 @@ public final class AnimationManager {
                 HIDDEN_POSITIONS.remove(affectedPos.asLong());
                 markDirty(level, affectedPos);
             }
+        }
+    }
+
+    private static void cancelActive(BlockGetter level, BlockPos pos, BlockState state, AnimatedBlockType type) {
+        BlockPos normalized = type.normalize(level, pos, state);
+        AnimationInstance removed = ACTIVE.remove(normalized.asLong());
+        if (removed != null && !removed.revealScheduled) {
+            revealOriginal(removed);
         }
     }
 

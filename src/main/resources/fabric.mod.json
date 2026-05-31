@@ -12,6 +12,9 @@
   "entrypoints": {
     "client": [
       "de.miraculixx.animated_doors.AnimatedDoors"
+    ],
+    "modmenu": [
+      "de.miraculixx.animated_doors.client.config.AnimatedDoorsModMenu"
     ]
   },
   "mixins": [
@@ -22,5 +25,8 @@
     "minecraft": "${mcversion}",
     "fabric-language-kotlin": "*",
     "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }
