@@ -9,7 +9,7 @@ All animations & connections are fully client-sided.
 To make connections work with redstone or similar, install this mod on your server too!<br>
 Compatible with Sodium/Iris (Shaders may show invalid shadows on doors), custom models & other mods.
 
-![Image](https://i.postimg.cc/FFMWbmsH/animated-doors.webp)<br>
+![Image](.media/animated_doors.webp)<br>
 View the [**Galery**](https://modrinth.com/mod/animated-doors/gallery) for more previews
 
 ## ⚙️ Configuration
