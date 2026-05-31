@@ -1,7 +1,12 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+import org.gradle.api.GradleException
+
 plugins {
     java
     id("net.fabricmc.fabric-loom") version "1.15-SNAPSHOT"
     id("io.github.dexman545.outlet") version "1.8.+"
+    id("com.modrinth.minotaur") version "2.+"
+    id("net.darkhax.curseforgegradle") version "1.3.32"
 }
 
 version = properties["version"] as String
@@ -88,6 +93,67 @@ tasks.register("runNeoForgeClient") {
     group = "fabric"
     description = "Runs a NeoForge client using the shared mod sources."
     dependsOn(":neoforge-run:runNeoForgeClient")
+}
+
+//
+// Publishing
+//
+outlet.mcVersionRange = properties["fabricSupportedVersions"] as String
+val releaseDisplayName = "${properties["projectName"] as String} - $version"
+val releaseChangelog = properties["changelog"] as String
+val releaseJar = tasks.named("jar")
+
+modrinth {
+    token.set(providers.gradleProperty("modrinthToken"))
+    projectId.set(properties["modrinthId"] as String)
+    versionNumber.set(project.version.toString())
+    versionName.set(releaseDisplayName)
+    versionType.set("release")
+    uploadFile.set(releaseJar)
+    gameVersions.addAll(outlet.mcVersions())
+    loaders.addAll("fabric", "neoforge", "quilt")
+    changelog.set(releaseChangelog)
+    detectLoaders.set(false)
+}
+
+tasks.register<TaskPublishCurseForge>("publishCurseForge") {
+    group = "publishing"
+    description = "Publishes the universal jar to CurseForge."
+
+    val curseforgeToken = providers.gradleProperty("curseforgeToken")
+    val curseforgeProjectId = providers.gradleProperty("curseforgeId")
+        .orNull
+        ?.takeIf { it.isNotBlank() }
+
+    apiToken = curseforgeToken
+    disableVersionDetection()
+
+    doFirst {
+        if (!curseforgeToken.isPresent || curseforgeToken.get().isBlank()) {
+            throw GradleException("Missing Gradle property 'curseforgeToken'.")
+        }
+        if (curseforgeProjectId == null) {
+            throw GradleException("Missing Gradle property 'curseforgeId'.")
+        }
+    }
+
+    if (curseforgeProjectId != null) {
+        upload(curseforgeProjectId, releaseJar) {
+            changelog = releaseChangelog
+            changelogType = "markdown"
+            displayName = releaseDisplayName
+            releaseType = "release"
+            outlet.mcVersions().forEach { addGameVersion(it) }
+            addModLoader("Fabric", "NeoForge", "Quilt")
+            addEnvironment("Client", "Server")
+        }
+    }
+}
+
+tasks.register("publishMods") {
+    group = "publishing"
+    description = "Publishes the universal jar to Modrinth and CurseForge."
+    dependsOn("modrinth", "publishCurseForge")
 }
 
 
