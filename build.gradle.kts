@@ -1,7 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    kotlin("jvm") version "2.3.21"
+    java
     id("net.fabricmc.fabric-loom") version "1.15-SNAPSHOT"
     id("io.github.dexman545.outlet") version "1.8.+"
 }
@@ -30,13 +28,6 @@ dependencies {
     implementation("net.fabricmc.fabric-api:fabric-api:${outlet.fapiVersion()}")
     compileOnly("com.terraformersmc:modmenu:18.0.0-beta.1")
     runtimeOnly("com.terraformersmc:modmenu:18.0.0-beta.1")
-
-    //
-    // Kotlin libraries
-    //
-    val flkVersion = outlet.latestModrinthModVersion("fabric-language-kotlin", outlet.mcVersions())
-    println("Fabric Language Kotlin: $flkVersion")
-    implementation("net.fabricmc:fabric-language-kotlin:$flkVersion")
 }
 
 tasks.processResources {
@@ -72,12 +63,6 @@ tasks {
     compileJava {
         options.encoding = "UTF-8"
         options.release.set(25)
-    }
-    compileKotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_25
-            freeCompilerArgs.add("-Xcontext-parameters")
-        }
     }
 }
 
