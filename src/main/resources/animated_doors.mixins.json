@@ -7,6 +7,7 @@
   "mixins": [
     "accessor.TrapDoorBlockAccessor",
     "ClientLevelMixin",
+    "LevelRendererMixin",
     "ModelBlockRendererMixin",
     "RenderSectionRegionMixin",
     "compat.SodiumBlockRendererMixin",

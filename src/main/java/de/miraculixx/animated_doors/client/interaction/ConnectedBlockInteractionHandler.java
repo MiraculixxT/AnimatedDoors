@@ -2,7 +2,6 @@ package de.miraculixx.animated_doors.client.interaction;
 
 import de.miraculixx.animated_doors.client.config.AnimatedDoorsConfig;
 import de.miraculixx.animated_doors.mixin.accessor.TrapDoorBlockAccessor;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -31,11 +30,7 @@ public final class ConnectedBlockInteractionHandler {
     private ConnectedBlockInteractionHandler() {
     }
 
-    public static void init() {
-        UseBlockCallback.EVENT.register(ConnectedBlockInteractionHandler::onUseBlock);
-    }
-
-    private static InteractionResult onUseBlock(Player player, Level level, InteractionHand hand, BlockHitResult hitResult) {
+    public static InteractionResult onUseBlock(Player player, Level level, InteractionHand hand, BlockHitResult hitResult) {
         if (syntheticUse || !level.isClientSide() || !(player instanceof LocalPlayer localPlayer)) {
             return InteractionResult.PASS;
         }

@@ -1,7 +1,5 @@
 package de.miraculixx.animated_doors.client.config;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -25,7 +23,9 @@ public final class AnimatedDoorsConfig {
     private static final String CONNECTED_FENCE_GATES_ENABLED_KEY = "connectedFenceGatesEnabled";
     private static final String CONNECTED_BLOCKS_ON_SERVERS_ENABLED_KEY = "connectedBlocksOnServersEnabled";
     private static final AnimatedDoorsConfig INSTANCE = new AnimatedDoorsConfig();
+    private static final String FILE_NAME = "animated_doors.properties";
 
+    private Path configPath = Path.of("config", FILE_NAME);
     private float durationSeconds = DEFAULT_DURATION_SECONDS;
     private Easing easing = Easing.EASE_IN_OUT;
     private boolean doorsEnabled = true;
@@ -41,6 +41,10 @@ public final class AnimatedDoorsConfig {
 
     public static AnimatedDoorsConfig instance() {
         return INSTANCE;
+    }
+
+    public void configure(Path configDir) {
+        configPath = configDir.resolve(FILE_NAME);
     }
 
     public void load() {
@@ -177,8 +181,8 @@ public final class AnimatedDoorsConfig {
         connectedBlocksOnServersEnabled = true;
     }
 
-    private static Path configPath() {
-        return FabricLoader.getInstance().getConfigDir().resolve("animated_doors.properties");
+    private Path configPath() {
+        return configPath;
     }
 
     private static float parseFloat(String value, float fallback) {

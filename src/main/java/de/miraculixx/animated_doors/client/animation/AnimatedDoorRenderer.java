@@ -1,8 +1,6 @@
 package de.miraculixx.animated_doors.client.animation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -27,12 +25,7 @@ public final class AnimatedDoorRenderer {
     private AnimatedDoorRenderer() {
     }
 
-    public static void init() {
-        LevelRenderEvents.START_MAIN.register(context -> AnimationManager.tick());
-        LevelRenderEvents.COLLECT_SUBMITS.register(AnimatedDoorRenderer::renderImmediate);
-    }
-
-    private static void renderImmediate(LevelRenderContext context) {
+    public static void render(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, Vec3 cameraPos) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             return;
@@ -40,9 +33,9 @@ public final class AnimatedDoorRenderer {
 
         RenderContext renderContext = new RenderContext(
             minecraft.getModelManager().getBlockStateModelSet(),
-            context.poseStack(),
-            context.submitNodeCollector(),
-            context.levelState().cameraRenderState.pos
+            poseStack,
+            submitNodeCollector,
+            cameraPos
         );
 
         for (AnimationInstance animation : AnimationManager.activeAnimations()) {

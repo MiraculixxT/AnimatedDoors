@@ -9,6 +9,10 @@ version = properties["version"] as String
 repositories {
     mavenCentral()
     maven {
+        name = "NeoForged"
+        url = uri("https://maven.neoforged.net/releases")
+    }
+    maven {
         name = "TerraformersMC"
         url = uri("https://maven.terraformersmc.com/releases")
     }
@@ -28,6 +32,11 @@ dependencies {
     implementation("net.fabricmc.fabric-api:fabric-api:${outlet.fapiVersion()}")
     compileOnly("com.terraformersmc:modmenu:18.0.0-beta.1")
     runtimeOnly("com.terraformersmc:modmenu:18.0.0-beta.1")
+
+    compileOnly("net.neoforged:neoforge:${properties["neoForgeVersion"]}")
+    compileOnly("net.neoforged.fancymodloader:loader:11.0.13")
+    compileOnly("net.neoforged:bus:8.0.5")
+    compileOnly("net.neoforged:mergetool:2.0.7:api")
 }
 
 tasks.processResources {
@@ -41,10 +50,13 @@ tasks.processResources {
         "license" to properties["licence"] as String,
         "modrinth" to modrinthSlug,
         "mcversion" to outlet.mcVersionRange,
-        "loaderVersion" to outlet.loaderVersion()
+        "loaderVersion" to outlet.loaderVersion(),
+        "neoForgeVersion" to properties["neoForgeVersion"] as String,
+        "neoForgeLoaderVersion" to properties["neoForgeLoaderVersion"] as String,
+        "neoForgeSupportedVersions" to properties["neoForgeSupportedVersions"] as String
     )
     inputs.properties(expansion)
-    filesMatching("fabric.mod.json") {
+    filesMatching(listOf("fabric.mod.json", "META-INF/neoforge.mods.toml")) {
         expand(expansion)
     }
 }
@@ -65,6 +77,23 @@ tasks {
         options.release.set(25)
     }
 }
+
+tasks.register("buildUniversal") {
+    group = "build"
+    description = "Builds the universal Fabric/NeoForge jar."
+    dependsOn(tasks.build)
+}
+
+tasks.register("runNeoForgeClient") {
+    group = "fabric"
+    description = "Runs a NeoForge client using the shared mod sources."
+    dependsOn(":neoforge-run:runNeoForgeClient")
+}
+
+
+
+
+
 
 
 //
