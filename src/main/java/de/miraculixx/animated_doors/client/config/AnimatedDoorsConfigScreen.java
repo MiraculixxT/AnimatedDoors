@@ -26,7 +26,7 @@ public final class AnimatedDoorsConfigScreen extends Screen {
     protected void init() {
         int controlsWidth = Math.min(300, width - 40);
         int x = (width - controlsWidth) / 2;
-        int y = height / 2 - 52;
+        int y = height / 2 - 66;
         int toggleGap = 6;
         int toggleWidth = (controlsWidth - toggleGap * 2) / 3;
 
@@ -62,6 +62,30 @@ public final class AnimatedDoorsConfigScreen extends Screen {
             "Gates",
             config::fenceGatesEnabled,
             config::setFenceGatesEnabled
+        ));
+        addRenderableWidget(toggleButton(
+            x,
+            y + 84,
+            toggleWidth,
+            "Doors Link",
+            config::connectedDoorsEnabled,
+            config::setConnectedDoorsEnabled
+        ));
+        addRenderableWidget(toggleButton(
+            x + toggleWidth + toggleGap,
+            y + 84,
+            toggleWidth,
+            "Traps Link",
+            config::connectedTrapdoorsEnabled,
+            config::setConnectedTrapdoorsEnabled
+        ));
+        addRenderableWidget(toggleButton(
+            x + (toggleWidth + toggleGap) * 2,
+            y + 84,
+            toggleWidth,
+            "Gates Link",
+            config::connectedFenceGatesEnabled,
+            config::setConnectedFenceGatesEnabled
         ));
         addRenderableWidget(Button
             .builder(Component.literal("Reset"), button -> {

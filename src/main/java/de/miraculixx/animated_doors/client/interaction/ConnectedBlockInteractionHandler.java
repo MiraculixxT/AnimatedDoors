@@ -1,5 +1,6 @@
 package de.miraculixx.animated_doors.client.interaction;
 
+import de.miraculixx.animated_doors.client.config.AnimatedDoorsConfig;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -70,15 +71,24 @@ public final class ConnectedBlockInteractionHandler {
 
     private static List<BlockPos> connectedPositions(Level level, BlockPos pos, BlockState state) {
         if (isDoor(state)) {
+            if (!AnimatedDoorsConfig.instance().connectedDoorsEnabled()) {
+                return List.of();
+            }
             BlockPos basePos = doorBasePos(pos, state);
             BlockState baseState = level.getBlockState(basePos);
             BlockPos connectedDoor = connectedDoor(level, basePos, baseState);
             return connectedDoor == null ? List.of() : List.of(connectedDoor);
         }
         if (isTrapdoor(state)) {
+            if (!AnimatedDoorsConfig.instance().connectedTrapdoorsEnabled()) {
+                return List.of();
+            }
             return connectedTrapdoors(level, pos, state);
         }
         if (isFenceGate(state)) {
+            if (!AnimatedDoorsConfig.instance().connectedFenceGatesEnabled()) {
+                return List.of();
+            }
             return connectedFenceGates(level, pos, state);
         }
         return List.of();
