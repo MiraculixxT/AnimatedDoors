@@ -23,6 +23,7 @@ public final class AnimatedDoorsConfig {
     private static final String CONNECTED_DOORS_ENABLED_KEY = "connectedDoorsEnabled";
     private static final String CONNECTED_TRAPDOORS_ENABLED_KEY = "connectedTrapdoorsEnabled";
     private static final String CONNECTED_FENCE_GATES_ENABLED_KEY = "connectedFenceGatesEnabled";
+    private static final String CONNECTED_BLOCKS_ON_SERVERS_ENABLED_KEY = "connectedBlocksOnServersEnabled";
     private static final AnimatedDoorsConfig INSTANCE = new AnimatedDoorsConfig();
 
     private float durationSeconds = DEFAULT_DURATION_SECONDS;
@@ -33,6 +34,7 @@ public final class AnimatedDoorsConfig {
     private boolean connectedDoorsEnabled = true;
     private boolean connectedTrapdoorsEnabled = true;
     private boolean connectedFenceGatesEnabled = true;
+    private boolean connectedBlocksOnServersEnabled = true;
 
     private AnimatedDoorsConfig() {
     }
@@ -59,6 +61,7 @@ public final class AnimatedDoorsConfig {
             connectedDoorsEnabled = parseBoolean(properties.getProperty(CONNECTED_DOORS_ENABLED_KEY), true);
             connectedTrapdoorsEnabled = parseBoolean(properties.getProperty(CONNECTED_TRAPDOORS_ENABLED_KEY), true);
             connectedFenceGatesEnabled = parseBoolean(properties.getProperty(CONNECTED_FENCE_GATES_ENABLED_KEY), true);
+            connectedBlocksOnServersEnabled = parseBoolean(properties.getProperty(CONNECTED_BLOCKS_ON_SERVERS_ENABLED_KEY), false);
         } catch (IOException ignored) {
             reset();
         }
@@ -74,6 +77,7 @@ public final class AnimatedDoorsConfig {
         properties.setProperty(CONNECTED_DOORS_ENABLED_KEY, Boolean.toString(connectedDoorsEnabled));
         properties.setProperty(CONNECTED_TRAPDOORS_ENABLED_KEY, Boolean.toString(connectedTrapdoorsEnabled));
         properties.setProperty(CONNECTED_FENCE_GATES_ENABLED_KEY, Boolean.toString(connectedFenceGatesEnabled));
+        properties.setProperty(CONNECTED_BLOCKS_ON_SERVERS_ENABLED_KEY, Boolean.toString(connectedBlocksOnServersEnabled));
 
         Path path = configPath();
         try {
@@ -153,6 +157,14 @@ public final class AnimatedDoorsConfig {
         this.connectedFenceGatesEnabled = connectedFenceGatesEnabled;
     }
 
+    public boolean connectedBlocksOnServersEnabled() {
+        return connectedBlocksOnServersEnabled;
+    }
+
+    public void setConnectedBlocksOnServersEnabled(boolean connectedBlocksOnServersEnabled) {
+        this.connectedBlocksOnServersEnabled = connectedBlocksOnServersEnabled;
+    }
+
     public void reset() {
         durationSeconds = DEFAULT_DURATION_SECONDS;
         easing = Easing.EASE_IN_OUT;
@@ -162,6 +174,7 @@ public final class AnimatedDoorsConfig {
         connectedDoorsEnabled = true;
         connectedTrapdoorsEnabled = true;
         connectedFenceGatesEnabled = true;
+        connectedBlocksOnServersEnabled = true;
     }
 
     private static Path configPath() {

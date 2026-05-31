@@ -16,6 +16,8 @@ import java.util.function.Consumer;
 public final class AnimatedDoorsConfigScreen extends Screen {
     private final Screen parent;
     private final AnimatedDoorsConfig config = AnimatedDoorsConfig.instance();
+    private int animationTitleY;
+    private int linkingTitleY;
 
     public AnimatedDoorsConfigScreen(Screen parent) {
         super(Component.literal("AnimatedDoors Configuration"));
@@ -26,22 +28,26 @@ public final class AnimatedDoorsConfigScreen extends Screen {
     protected void init() {
         int controlsWidth = Math.min(300, width - 40);
         int x = (width - controlsWidth) / 2;
-        int y = height / 2 - 66;
+        int animationY = height / 2 - 82;
+        animationTitleY = animationY - 15;
+        linkingTitleY = animationY + 90;
+        int linkingY = linkingTitleY + 16;
         int toggleGap = 6;
         int toggleWidth = (controlsWidth - toggleGap * 2) / 3;
+        int widgetGap = 24;
 
-        addRenderableWidget(new DurationSlider(x, y, controlsWidth, 20));
+        addRenderableWidget(new DurationSlider(x, animationY, controlsWidth, 20));
         addRenderableWidget(CycleButton
             .builder(easing -> Component.literal(easing.displayName()), config.easing())
             .withValues(List.of(AnimatedDoorsConfig.Easing.values()))
-            .create(x, y + 28, controlsWidth, 20, Component.literal("Easing"), (button, easing) -> {
+            .create(x, animationY + widgetGap, controlsWidth, 20, Component.literal("Easing"), (button, easing) -> {
                 config.setEasing(easing);
                 config.save();
             })
         );
         addRenderableWidget(toggleButton(
             x,
-            y + 56,
+            animationY + widgetGap*2,
             toggleWidth,
             "Doors",
             config::doorsEnabled,
@@ -49,7 +55,7 @@ public final class AnimatedDoorsConfigScreen extends Screen {
         ));
         addRenderableWidget(toggleButton(
             x + toggleWidth + toggleGap,
-            y + 56,
+            animationY + widgetGap*2,
             toggleWidth,
             "Trapdoors",
             config::trapdoorsEnabled,
@@ -57,15 +63,24 @@ public final class AnimatedDoorsConfigScreen extends Screen {
         ));
         addRenderableWidget(toggleButton(
             x + (toggleWidth + toggleGap) * 2,
-            y + 56,
+            animationY + widgetGap*2,
             toggleWidth,
             "Gates",
             config::fenceGatesEnabled,
             config::setFenceGatesEnabled
         ));
+
+        addRenderableWidget(toggleButton(
+                x,
+                linkingY,
+                controlsWidth,
+                "Activate on Servers",
+                config::connectedBlocksOnServersEnabled,
+                config::setConnectedBlocksOnServersEnabled
+        ));
         addRenderableWidget(toggleButton(
             x,
-            y + 84,
+            linkingY + widgetGap,
             toggleWidth,
             "Doors Link",
             config::connectedDoorsEnabled,
@@ -73,7 +88,7 @@ public final class AnimatedDoorsConfigScreen extends Screen {
         ));
         addRenderableWidget(toggleButton(
             x + toggleWidth + toggleGap,
-            y + 84,
+            linkingY + widgetGap,
             toggleWidth,
             "Traps Link",
             config::connectedTrapdoorsEnabled,
@@ -81,7 +96,7 @@ public final class AnimatedDoorsConfigScreen extends Screen {
         ));
         addRenderableWidget(toggleButton(
             x + (toggleWidth + toggleGap) * 2,
-            y + 84,
+            linkingY + widgetGap,
             toggleWidth,
             "Gates Link",
             config::connectedFenceGatesEnabled,
@@ -107,7 +122,9 @@ public final class AnimatedDoorsConfigScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-        graphics.centeredText(font, title, width / 2, 20, -1);
+        graphics.centeredText(font, title, width / 2, 10, -1);
+        graphics.centeredText(font, Component.literal("Animation Settings"), width / 2, animationTitleY, -1);
+        graphics.centeredText(font, Component.literal("Linking Settings"), width / 2, linkingTitleY, -1);
     }
 
     @Override

@@ -44,6 +44,9 @@ public final class ConnectedBlockInteractionHandler {
         if (gameMode == null || minecraft.player != localPlayer) {
             return InteractionResult.PASS;
         }
+        if (isRemoteServer(minecraft) && !AnimatedDoorsConfig.instance().connectedBlocksOnServersEnabled()) {
+            return InteractionResult.PASS;
+        }
 
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = level.getBlockState(pos);
@@ -67,6 +70,10 @@ public final class ConnectedBlockInteractionHandler {
         }
 
         return InteractionResult.PASS;
+    }
+
+    private static boolean isRemoteServer(Minecraft minecraft) {
+        return minecraft.getConnection() != null && !minecraft.isLocalServer();
     }
 
     private static List<BlockPos> connectedPositions(Level level, BlockPos pos, BlockState state) {
