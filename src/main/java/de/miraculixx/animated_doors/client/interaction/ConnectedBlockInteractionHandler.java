@@ -44,6 +44,9 @@ public final class ConnectedBlockInteractionHandler {
         if (gameMode == null || minecraft.player != localPlayer) {
             return InteractionResult.PASS;
         }
+        if (isSecondaryItemUse(localPlayer)) {
+            return InteractionResult.PASS;
+        }
         if (isRemoteServer(minecraft) && !AnimatedDoorsConfig.instance().connectedBlocksOnServersEnabled()) {
             return InteractionResult.PASS;
         }
@@ -74,6 +77,11 @@ public final class ConnectedBlockInteractionHandler {
 
     private static boolean isRemoteServer(Minecraft minecraft) {
         return minecraft.getConnection() != null && !minecraft.isLocalServer();
+    }
+
+    private static boolean isSecondaryItemUse(LocalPlayer player) {
+        return player.isSecondaryUseActive()
+            && (!player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty());
     }
 
     private static List<BlockPos> connectedPositions(Level level, BlockPos pos, BlockState state) {
