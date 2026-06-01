@@ -22,6 +22,7 @@ The settings menu is accessible via the Mod Menu (Fabric - requires ModMenu).
 |  **Block Toggle**   | Enable/disable animation for doors, trapdoors or fence gates                                     |  All enabled  |
 | **Server Linking**  | Enable/disable client-side linking on servers. This can help avoiding anti-cheat false positives |   `Enabled`   |
 | **Linking Toggle**  | Enable/disable linking for doors, trapdoors or fence gates                                       |  All enabled  |
+
 Tip: Making animations very slow can look epic on edits or story videos!
 
 This pack also overrides vanilla door/trapdoor/gate models to make the UV consistent and avoiding jumping pixels.
