@@ -8,7 +8,7 @@ version="${version}"
 displayName="${name}"
 description='''${description}'''
 authors="${author}"
-logoFile="assets/animated_doors/icon.png"
+logoFile= "../../../../pack/assets/animated_doors/icon.png"
 
 [[mixins]]
 config="animated_doors.mixins.json"

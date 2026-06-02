@@ -11,6 +11,12 @@ plugins {
 
 version = properties["version"] as String
 
+sourceSets {
+    main {
+        resources.srcDirs("$rootDir/pack/")
+    }
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -156,6 +162,16 @@ tasks.register("publishMods") {
     dependsOn("modrinth", "publishCurseForge")
 }
 
+tasks.register<Zip>("buildResourcePack") {
+    group = "build"
+    description = "Builds the AnimatedDoors resource pack zip from the pack directory."
+
+    from(layout.projectDirectory.dir("pack"))
+    includeEmptyDirs = false
+    archiveBaseName.set("${properties["projectName"]}-ResourcePack")
+    archiveVersion.set(project.version.toString())
+    destinationDirectory.set(layout.buildDirectory.dir("resource-pack"))
+}
 
 
 
