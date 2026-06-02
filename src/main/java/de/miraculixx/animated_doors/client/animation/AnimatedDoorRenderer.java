@@ -3,6 +3,7 @@ package de.miraculixx.animated_doors.client.animation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import de.miraculixx.animated_doors.client.AnimatedDoorsClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -152,6 +153,9 @@ public final class AnimatedDoorRenderer {
 
         private SmoothQuad prepareSmoothQuad(BlockAndTintGetter level, BlockPos pos, BlockState state, BakedQuad quad, Matrix4fc transform) {
             Vector3f normal = transformedNormal(quad, transform);
+            boolean softenAo = shouldSoftenSmoothAo(state);
+            float normalShade = shade(normal, level.cardinalLighting());
+            int softenedColor = ARGB.colorFromFloat(1.0f, normalShade, normalShade, normalShade);
             float xWeight = normal.x() * normal.x();
             float yWeight = normal.y() * normal.y();
             float zWeight = normal.z() * normal.z();
@@ -171,7 +175,7 @@ public final class AnimatedDoorRenderer {
             int[] colors = new int[BakedQuad.VERTEX_COUNT];
             int[] lightCoords = new int[BakedQuad.VERTEX_COUNT];
             for (int vertex = 0; vertex < BakedQuad.VERTEX_COUNT; vertex++) {
-                colors[vertex] = weightedColor(
+                int color = weightedColor(
                     xLighting.getColor(vertex),
                     yLighting.getColor(vertex),
                     zLighting.getColor(vertex),
@@ -179,6 +183,7 @@ public final class AnimatedDoorRenderer {
                     yWeight,
                     zWeight
                 );
+                colors[vertex] = softenAo ? softenColor(color, softenedColor) : color;
                 lightCoords[vertex] = LightCoordsUtil.smoothWeightedBlend(
                     xLighting.getLightCoords(vertex),
                     yLighting.getLightCoords(vertex),
@@ -277,6 +282,10 @@ public final class AnimatedDoorRenderer {
             return state.getBlock() instanceof TrapDoorBlock || state.getBlock() instanceof FenceGateBlock;
         }
 
+        private static boolean shouldSoftenSmoothAo(BlockState state) {
+            return state.getBlock() instanceof FenceGateBlock && AnimatedDoorsClient.sodiumCompatLoaded();
+        }
+
         private static BakedQuad transformQuad(BakedQuad quad, Matrix4fc transform, Direction direction) {
             return new BakedQuad(
                 transformPosition(quad, 0, transform),
@@ -314,6 +323,18 @@ public final class AnimatedDoorRenderer {
 
         private static int weightedChannel(int x, int y, int z, float xWeight, float yWeight, float zWeight) {
             return Math.clamp(Math.round(x * xWeight + y * yWeight + z * zWeight), 0, 255);
+        }
+
+        private static int softenColor(int color, int target) {
+            int alpha = ARGB.alpha(color);
+            int red = softenChannel(ARGB.red(color), ARGB.red(target));
+            int green = softenChannel(ARGB.green(color), ARGB.green(target));
+            int blue = softenChannel(ARGB.blue(color), ARGB.blue(target));
+            return ARGB.color(alpha, red, green, blue);
+        }
+
+        private static int softenChannel(int value, int target) {
+            return Math.max(value, Math.round(value * 0.5f + target * 0.5f));
         }
     }
 
