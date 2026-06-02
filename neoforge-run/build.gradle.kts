@@ -1,16 +1,14 @@
 plugins {
-    java
     id("net.neoforged.moddev") version "2.0.141"
+    id("core-script")
 }
 
-version = rootProject.version
-group = rootProject.properties["group"] as String
-
-repositories {
-    mavenCentral()
-    maven("https://maven.neoforged.net/releases") {
-        name = "NeoForged"
-    }
+extensions.configure<AnimatedDoorsCoreExtension>("animatedDoorsCore") {
+    resourceExcludes.add("fabric.mod.json")
+    resourceTemplates.set(listOf("META-INF/neoforge.mods.toml"))
+    extraResourceExpansion.put("neoForgeVersion", rootProject.properties["neoForgeVersion"] as String)
+    extraResourceExpansion.put("neoForgeLoaderVersion", rootProject.properties["neoForgeLoaderVersion"] as String)
+    extraResourceExpansion.put("neoForgeSupportedVersions", rootProject.properties["neoForgeSupportedVersions"] as String)
 }
 
 neoForge {
@@ -39,36 +37,6 @@ sourceSets {
         }
         resources {
             setSrcDirs(listOf(rootProject.layout.projectDirectory.dir("src/main/resources")))
-            exclude("fabric.mod.json")
         }
     }
-}
-
-tasks.processResources {
-    val expansion = mapOf(
-        "modid" to rootProject.properties["modid"] as String,
-        "version" to rootProject.properties["version"] as String,
-        "name" to rootProject.properties["projectName"] as String,
-        "description" to rootProject.properties["description"] as String,
-        "author" to rootProject.properties["author"] as String,
-        "license" to rootProject.properties["licence"] as String,
-        "neoForgeVersion" to rootProject.properties["neoForgeVersion"] as String,
-        "neoForgeLoaderVersion" to rootProject.properties["neoForgeLoaderVersion"] as String,
-        "neoForgeSupportedVersions" to rootProject.properties["neoForgeSupportedVersions"] as String
-    )
-    inputs.properties(expansion)
-    filesMatching("META-INF/neoforge.mods.toml") {
-        expand(expansion)
-    }
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(25))
-    }
-}
-
-tasks.compileJava {
-    options.encoding = "UTF-8"
-    options.release.set(25)
 }

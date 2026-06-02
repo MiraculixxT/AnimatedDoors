@@ -1,0 +1,12 @@
+{
+  "pack": {
+    "pack_format": 34,
+    "supported_formats": {
+      "min_inclusive": 34,
+      "max_inclusive": 64
+    },
+    "min_format": 34,
+    "max_format": [84, 0],
+    "description": "§6§lAnimated Doors §7| §eBy Miraculixx"
+  }
+}
