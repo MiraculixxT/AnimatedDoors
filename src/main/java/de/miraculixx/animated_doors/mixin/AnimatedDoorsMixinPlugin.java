@@ -19,43 +19,7 @@ public final class AnimatedDoorsMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.contains(".compat.Sodium")) {
-            return isModLoaded("sodium");
-        }
         return true;
-    }
-
-    private static boolean isModLoaded(String modId) {
-        Boolean fabricLoaded = isFabricModLoaded(modId);
-        if (fabricLoaded != null) {
-            return fabricLoaded;
-        }
-
-        Boolean neoForgeLoaded = isNeoForgeModLoaded(modId);
-        return neoForgeLoaded != null && neoForgeLoaded;
-    }
-
-    private static Boolean isFabricModLoaded(String modId) {
-        try {
-            Class<?> loaderClass = Class.forName("net.fabricmc.loader.api.FabricLoader");
-            Object loader = loaderClass.getMethod("getInstance").invoke(null);
-            return (Boolean) loaderClass.getMethod("isModLoaded", String.class).invoke(loader, modId);
-        } catch (ReflectiveOperationException | LinkageError ignored) {
-            return null;
-        }
-    }
-
-    private static Boolean isNeoForgeModLoaded(String modId) {
-        try {
-            Class<?> modListClass = Class.forName("net.neoforged.fml.ModList");
-            Object modList = modListClass.getMethod("get").invoke(null);
-            if (modList == null) {
-                return null;
-            }
-            return (Boolean) modListClass.getMethod("isLoaded", String.class).invoke(modList, modId);
-        } catch (ReflectiveOperationException | LinkageError ignored) {
-            return null;
-        }
     }
 
     @Override

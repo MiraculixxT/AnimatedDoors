@@ -15,7 +15,7 @@ public class AnimatedDoors implements ClientModInitializer {
             .getVersion()
             .getFriendlyString();
 
-        AnimatedDoorsClient.init("fabric", version, fabricLoader.getConfigDir());
+        AnimatedDoorsClient.init("fabric", version, fabricLoader.getConfigDir(), fabricLoader.isModLoaded("sodium"));
         UseBlockCallback.EVENT.register(ConnectedBlockInteractionHandler::onUseBlock);
     }
 }
