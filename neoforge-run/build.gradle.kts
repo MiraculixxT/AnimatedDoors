@@ -4,7 +4,10 @@ plugins {
 }
 
 extensions.configure<AnimatedDoorsCoreExtension>("animatedDoorsCore") {
+    resourceDirectories.add(File(rootDir, "pack"))
+
     resourceExcludes.add("fabric.mod.json")
+    resourceExcludes.add("pack.mcmeta")
     resourceTemplates.set(listOf("META-INF/neoforge.mods.toml"))
     extraResourceExpansion.put("neoForgeVersion", rootProject.properties["neoForgeVersion"] as String)
     extraResourceExpansion.put("neoForgeLoaderVersion", rootProject.properties["neoForgeLoaderVersion"] as String)

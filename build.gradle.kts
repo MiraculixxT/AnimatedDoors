@@ -10,6 +10,7 @@ outlet.mcVersionRange = properties["fabricSupportedVersions"] as String
 
 extensions.configure<AnimatedDoorsCoreExtension>("animatedDoorsCore") {
     resourceDirectories.add(layout.projectDirectory.dir("pack").asFile)
+    resourceExcludes.add("pack.mcmeta")
 
     val modrinthSlug = properties["modrinthId"] as? String ?: properties["modid"] as String
     extraResourceExpansion.put("modrinth", modrinthSlug)
