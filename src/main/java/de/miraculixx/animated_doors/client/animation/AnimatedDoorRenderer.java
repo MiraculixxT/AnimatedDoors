@@ -1,6 +1,8 @@
 package de.miraculixx.animated_doors.client.animation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -8,14 +10,19 @@ import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockStateModelSet;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.ARGB;
+import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +55,8 @@ public final class AnimatedDoorRenderer {
     }
 
     private static final class RenderContext {
+        private static final Direction[] DIRECTIONS = Direction.values();
+
         private final BlockStateModelSet modelSet;
         private final PoseStack poseStack;
         private final SubmitNodeCollector submitNodeCollector;
@@ -67,22 +76,25 @@ public final class AnimatedDoorRenderer {
             }
 
             BlockStateModel model = modelSet.get(state);
-            BlockModelRenderState renderState = new BlockModelRenderState();
-            List<BlockStateModelPart> parts = renderState.setupModel(transform, model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT));
-            model.collectParts(renderState.scratchRandomSource(state.getSeed(pos)), parts);
-
-            List<BlockStateModelPart> filtered = new ArrayList<>(parts.size());
-            for (BlockStateModelPart part : parts) {
-                filtered.add(new FilteringPart(part, quadFilter));
-            }
+            List<BlockStateModelPart> parts = collectParts(model, state, pos);
+            List<BakedQuad> quads = collectQuads(parts, quadFilter);
             if (!generatedFaces.isEmpty()) {
                 BakedQuad template = GeneratedFace.findTemplate(parts);
                 if (template != null) {
-                    filtered.add(new GeneratedPart(generatedFaces, template, model.particleMaterial()));
+                    for (GeneratedFace face : generatedFaces) {
+                        quads.add(face.bake(template));
+                    }
                 }
             }
-            parts.clear();
-            parts.addAll(filtered);
+            if (quads.isEmpty()) {
+                return;
+            }
+
+            int lightCoords = LevelRenderer.getLightCoords(minecraft.level, pos);
+            CardinalLighting cardinalLighting = minecraft.level.cardinalLighting();
+            RenderType renderType = model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT)
+                ? RenderTypes.translucentMovingBlock()
+                : RenderTypes.cutoutMovingBlock();
 
             poseStack.pushPose();
             poseStack.translate(
@@ -90,87 +102,67 @@ public final class AnimatedDoorRenderer {
                 pos.getY() - cameraPos.y,
                 pos.getZ() - cameraPos.z
             );
-            renderState.submit(poseStack, submitNodeCollector, LevelRenderer.getLightCoords(minecraft.level, pos), OverlayTexture.NO_OVERLAY, 0);
+            poseStack.mulPose(transform);
+            submitNodeCollector.submitCustomGeometry(
+                poseStack,
+                renderType,
+                (pose, vertexConsumer) -> renderQuads(vertexConsumer, pose, quads, lightCoords, cardinalLighting)
+            );
             poseStack.popPose();
         }
-    }
 
-    private static final class GeneratedPart implements BlockStateModelPart {
-        private final List<GeneratedFace> faces;
-        private final BakedQuad template;
-        private final Material.Baked particleMaterial;
-
-        private GeneratedPart(List<GeneratedFace> faces, BakedQuad template, Material.Baked particleMaterial) {
-            this.faces = faces;
-            this.template = template;
-            this.particleMaterial = particleMaterial;
+        private static List<BlockStateModelPart> collectParts(BlockStateModel model, BlockState state, BlockPos pos) {
+            BlockModelRenderState renderState = new BlockModelRenderState();
+            List<BlockStateModelPart> parts = renderState.setupModel(new Matrix4f(), model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT));
+            model.collectParts(renderState.scratchRandomSource(state.getSeed(pos)), parts);
+            return parts;
         }
 
-        @Override
-        public List<BakedQuad> getQuads(Direction direction) {
-            List<BakedQuad> quads = new ArrayList<>(faces.size());
-            for (GeneratedFace face : faces) {
-                if (direction == null || face.direction() == direction) {
-                    quads.add(face.bake(template));
+        private static List<BakedQuad> collectQuads(List<BlockStateModelPart> parts, Predicate<BakedQuad> quadFilter) {
+            List<BakedQuad> quads = new ArrayList<>();
+            for (BlockStateModelPart part : parts) {
+                for (Direction direction : DIRECTIONS) {
+                    collectQuads(part.getQuads(direction), quadFilter, quads);
                 }
+                collectQuads(part.getQuads(null), quadFilter, quads);
             }
             return quads;
         }
 
-        @Override
-        public boolean useAmbientOcclusion() {
-            return false;
-        }
-
-        @Override
-        public Material.Baked particleMaterial() {
-            return particleMaterial;
-        }
-
-        @Override
-        public int materialFlags() {
-            return template.materialInfo().flags();
-        }
-    }
-
-    private static final class FilteringPart implements BlockStateModelPart {
-        private final BlockStateModelPart delegate;
-        private final Predicate<BakedQuad> filter;
-
-        private FilteringPart(BlockStateModelPart delegate, Predicate<BakedQuad> filter) {
-            this.delegate = delegate;
-            this.filter = filter;
-        }
-
-        @Override
-        public List<BakedQuad> getQuads(Direction direction) {
-            List<BakedQuad> original = delegate.getQuads(direction);
-            if (original.isEmpty()) {
-                return original;
-            }
-
-            List<BakedQuad> filtered = new ArrayList<>(original.size());
-            for (BakedQuad quad : original) {
-                if (filter.test(quad)) {
-                    filtered.add(quad);
+        private static void collectQuads(List<BakedQuad> source, Predicate<BakedQuad> quadFilter, List<BakedQuad> quads) {
+            for (BakedQuad quad : source) {
+                if (quadFilter.test(quad)) {
+                    quads.add(quad);
                 }
             }
-            return filtered;
         }
 
-        @Override
-        public boolean useAmbientOcclusion() {
-            return delegate.useAmbientOcclusion();
+        private static void renderQuads(
+            VertexConsumer vertexConsumer,
+            PoseStack.Pose pose,
+            List<BakedQuad> quads,
+            int lightCoords,
+            CardinalLighting cardinalLighting
+        ) {
+            QuadInstance quadInstance = new QuadInstance();
+            quadInstance.setLightCoords(lightCoords);
+            quadInstance.setOverlayCoords(OverlayTexture.NO_OVERLAY);
+            Vector3f normal = new Vector3f();
+
+            for (BakedQuad quad : quads) {
+                pose.transformNormal(quad.direction().getUnitVec3f(), normal).normalize();
+                float shade = shade(normal, cardinalLighting);
+                quadInstance.setColor(ARGB.colorFromFloat(1.0f, shade, shade, shade));
+                vertexConsumer.putBakedQuad(pose, quad, quadInstance);
+            }
         }
 
-        @Override
-        public Material.Baked particleMaterial() {
-            return delegate.particleMaterial();
-        }
-
-        @Override
-        public int materialFlags() {
-            return delegate.materialFlags();
+        private static float shade(Vector3f normal, CardinalLighting cardinalLighting) {
+            float x = normal.x() * normal.x();
+            float y = normal.y() * normal.y();
+            float z = normal.z() * normal.z();
+            float yShade = normal.y() > 0.0f ? cardinalLighting.byFace(Direction.UP) : cardinalLighting.byFace(Direction.DOWN);
+            return x * cardinalLighting.byFace(Direction.EAST) + y * yShade + z * cardinalLighting.byFace(Direction.NORTH);
         }
     }
 }
